@@ -12,6 +12,13 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
         next();
     } else {
         // User is not authenticated, save the original URL and redirect to login
+
+        //if the path is a api route, we should return a 401 instead of redirecting
+        if (req.originalUrl.toLowerCase().includes('/api/')) {
+            res.status(401).send('Unauthorized: Please log in to access this resource');
+            return;
+        }
+
         const redirectUrl = req.originalUrl;
         res.redirect(`/auth/login?redirect=${encodeURIComponent(redirectUrl)}`);
     }
