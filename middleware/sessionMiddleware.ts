@@ -3,8 +3,8 @@ import SqliteStore from 'better-sqlite3-session-store';
 import Database from 'better-sqlite3';
 import path from 'path';
 
-// Initialize SQLite database for sessions
-const dbPath = path.join(__dirname, '../../sessions.db');
+// Initialize SQLite database for sessions - use absolute path for consistency
+const dbPath = path.resolve(process.cwd(), 'sessions.db');
 const db = new Database(dbPath);
 
 // Create session store
