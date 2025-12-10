@@ -81,6 +81,15 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenRes
  * Revoke an access or refresh token
  */
 export async function revokeToken(token: string): Promise<void> {
+    // Skip if token is empty or undefined
+
+    console.log('Revoking token:', token ? '****' + token.slice(-4) : 'no token provided');
+    if (!token || token.trim() === '') {
+        return;
+    }
+
+
+    
     try {
         const response = await fetch(`${AUTH_SERVER_URL}/oauth/revoke`, {
             method: 'POST',
@@ -88,7 +97,7 @@ export async function revokeToken(token: string): Promise<void> {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                token: token
+                refresh_token: token
             })
         });
 
