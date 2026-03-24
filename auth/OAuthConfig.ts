@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 // OAuth configuration from environment variables
 const AUTH_SERVER_URL = process.env.AUTH_SERVER_URL || '';
 const AUTH_REDIRECT_URI = process.env.AUTH_REDIRECT_URI || '';
+const AUTH_CLIENT_ID = process.env.AUTH_CLIENT_ID || '';
+const AUTH_CLIENT_SECRET = process.env.AUTH_CLIENT_SECRET || '';
 
 export interface TokenResponse {
     access_token: string;
@@ -31,7 +33,9 @@ export async function exchangeCodeForToken(code: string): Promise<TokenResponse>
             body: JSON.stringify({
                 grant_type: 'authorization_code',
                 code: code,
-                redirect_uri: AUTH_REDIRECT_URI
+                redirect_uri: AUTH_REDIRECT_URI,
+                client_id: AUTH_CLIENT_ID,
+                client_secret: AUTH_CLIENT_SECRET
             })
         });
 
@@ -60,7 +64,9 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenRes
             },
             body: JSON.stringify({
                 grant_type: 'refresh_token',
-                refresh_token: refreshToken
+                refresh_token: refreshToken,
+                client_id: AUTH_CLIENT_ID,
+                client_secret: AUTH_CLIENT_SECRET
             })
         });
 
@@ -81,6 +87,15 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenRes
  * Revoke an access or refresh token
  */
 export async function revokeToken(token: string): Promise<void> {
+    // Skip if token is empty or undefined
+
+    console.log('Revoking token:', token ? '****' + token.slice(-4) : 'no token provided');
+    if (!token || token.trim() === '') {
+        return;
+    }
+
+
+    
     try {
         const response = await fetch(`${AUTH_SERVER_URL}/oauth/revoke`, {
             method: 'POST',
@@ -88,7 +103,7 @@ export async function revokeToken(token: string): Promise<void> {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                token: token
+                refresh_token: token
             })
         });
 
@@ -139,9 +154,9 @@ export async function getUserInfo(accessToken: string): Promise<UserInfo> {
  */
 export function getAuthorizationUrl(state: string, redirectPath?: string): string {
     const params = new URLSearchParams({
-        response_type: 'code',
-        redirect_uri: AUTH_REDIRECT_URI,
-        state: state
+        client_id: AUTH_CLIENT_ID,
+        state: state,
+        redirect_uri: AUTH_REDIRECT_URI
     });
 
     if (redirectPath) {
