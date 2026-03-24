@@ -4,7 +4,8 @@ import Database from 'better-sqlite3';
 import path from 'path';
 
 // Initialize SQLite database for sessions
-const dbPath = path.join(__dirname, '../../sessions.db');
+// Use DB_PATH env var for Docker persistence, default to project root for local dev
+const dbPath = process.env.DB_PATH || path.join(__dirname, '../../sessions.db');
 const db = new Database(dbPath);
 
 // Create session store
